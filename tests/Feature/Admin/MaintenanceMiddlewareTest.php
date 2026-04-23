@@ -23,7 +23,7 @@ class MaintenanceMiddlewareTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-             ->getJson('/api/v1/auth/me')
+             ->getJson('/api/v1/subscriptions')
              ->assertStatus(503)
              ->assertJsonPath('success', false)
              ->assertJsonPath('message', 'Under maintenance.');
@@ -42,6 +42,16 @@ class MaintenanceMiddlewareTest extends TestCase
     public function test_regular_user_can_access_app_when_maintenance_is_off(): void
     {
         Cache::put('maintenance_mode', false);
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+             ->getJson('/api/v1/subscriptions')
+             ->assertStatus(200);
+    }
+
+    public function test_regular_user_can_still_call_me_during_maintenance(): void
+    {
+        Cache::put('maintenance_mode', true);
         $user = User::factory()->create();
 
         $this->actingAs($user)

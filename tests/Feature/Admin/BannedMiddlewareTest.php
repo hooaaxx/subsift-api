@@ -15,7 +15,7 @@ class BannedMiddlewareTest extends TestCase
         $user = User::factory()->create(['banned_at' => now()]);
 
         $this->actingAs($user)
-             ->getJson('/api/v1/auth/me')
+             ->getJson('/api/v1/subscriptions')
              ->assertStatus(403)
              ->assertJsonPath('message', 'Your account has been suspended.');
     }
@@ -25,7 +25,17 @@ class BannedMiddlewareTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)
-             ->getJson('/api/v1/auth/me')
+             ->getJson('/api/v1/subscriptions')
              ->assertStatus(200);
+    }
+
+    public function test_banned_user_can_still_call_me_endpoint(): void
+    {
+        $user = User::factory()->create(['banned_at' => now()]);
+
+        $this->actingAs($user)
+             ->getJson('/api/v1/auth/me')
+             ->assertStatus(200)
+             ->assertJsonPath('data.banned_at', fn ($v) => $v !== null);
     }
 }

@@ -26,14 +26,14 @@ Route::prefix('v1')->group(function () {
         Route::post('reset-password',  [AuthController::class, 'resetPassword']);
     });
 
-    // Protected
-    Route::middleware(['auth:sanctum', 'not-banned', 'not-maintenance'])->group(function () {
+    // me + logout bypass banned/maintenance so banned users can read their status and log out
+    Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
+        Route::post('logout', [AuthController::class, 'logout']);
+        Route::get('me',      [AuthController::class, 'me']);
+    });
 
-        // Auth
-        Route::prefix('auth')->group(function () {
-            Route::post('logout', [AuthController::class, 'logout']);
-            Route::get('me',      [AuthController::class, 'me']);
-        });
+    // Protected (banned and maintenance checks apply)
+    Route::middleware(['auth:sanctum', 'not-banned', 'not-maintenance'])->group(function () {
 
         // Subscriptions
         Route::get('subscriptions/summary',  [SubscriptionController::class, 'summary']);
