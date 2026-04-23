@@ -10,6 +10,13 @@ class EnsureAdmin
 {
     public function handle(Request $request, Closure $next): Response
     {
+        if (! $request->user()?->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Forbidden.',
+            ], 403);
+        }
+
         return $next($request);
     }
 }
