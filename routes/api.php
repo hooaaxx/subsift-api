@@ -16,7 +16,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // Protected
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'not-banned', 'not-maintenance'])->group(function () {
 
         // Auth
         Route::prefix('auth')->group(function () {

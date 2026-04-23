@@ -23,6 +23,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'api/*',
         ]);
+
+        $middleware->alias([
+            'not-banned'      => \App\Http\Middleware\EnsureNotBanned::class,
+            'not-maintenance' => \App\Http\Middleware\EnsureNotMaintenance::class,
+            'admin'           => \App\Http\Middleware\EnsureAdmin::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->renderable(function (\Throwable $e, $request) {
