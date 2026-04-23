@@ -15,26 +15,65 @@ class AdminController extends Controller
 {
     public function users(Request $request): JsonResponse
     {
-        return response()->json(['success' => true, 'data' => [], 'message' => '']);
+        $users = User::where('id', '!=', $request->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => UserResource::collection($users),
+            'message' => 'Users retrieved.',
+        ]);
     }
 
     public function ban(Request $request, int $id): JsonResponse
     {
-        return response()->json(['success' => true, 'data' => null, 'message' => '']);
+        $user = User::findOrFail($id);
+
+        abort_if($user->id === $request->user()->id, 403, 'Cannot ban yourself.');
+
+        $user->update(['banned_at' => now()]);
+
+        PersonalAccessToken::where('tokenable_id', $user->id)->delete();
+        DB::table('sessions')->where('user_id', $user->id)->delete();
+
+        return response()->json([
+            'success' => true,
+            'data'    => new UserResource($user->fresh()),
+            'message' => 'User banned and logged out.',
+        ]);
     }
 
     public function unban(Request $request, int $id): JsonResponse
     {
-        return response()->json(['success' => true, 'data' => null, 'message' => '']);
+        $user = User::findOrFail($id);
+        $user->update(['banned_at' => null]);
+
+        return response()->json([
+            'success' => true,
+            'data'    => new UserResource($user->fresh()),
+            'message' => 'User unbanned.',
+        ]);
     }
 
     public function maintenanceStatus(): JsonResponse
     {
-        return response()->json(['success' => true, 'data' => ['enabled' => false], 'message' => '']);
+        return response()->json([
+            'success' => true,
+            'data'    => ['enabled' => Cache::get('maintenance_mode', false)],
+            'message' => 'Maintenance status retrieved.',
+        ]);
     }
 
     public function toggleMaintenance(Request $request): JsonResponse
     {
-        return response()->json(['success' => true, 'data' => ['enabled' => false], 'message' => '']);
+        $enabled = $request->boolean('enabled');
+        Cache::put('maintenance_mode', $enabled);
+
+        return response()->json([
+            'success' => true,
+            'data'    => ['enabled' => $enabled],
+            'message' => $enabled ? 'Maintenance mode enabled.' : 'Maintenance mode disabled.',
+        ]);
     }
 }

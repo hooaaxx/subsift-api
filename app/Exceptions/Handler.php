@@ -7,6 +7,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
@@ -52,6 +53,13 @@ class Handler extends ExceptionHandler
                 'success' => false,
                 'message' => 'Resource not found.',
             ], 404);
+        }
+
+        if ($e instanceof HttpException) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage() ?: 'HTTP error.',
+            ], $e->getStatusCode());
         }
 
         return response()->json([

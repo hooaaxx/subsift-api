@@ -8,6 +8,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -63,6 +64,13 @@ return Application::configure(basePath: dirname(__DIR__))
                     'success' => false,
                     'message' => 'Resource not found.',
                 ], 404);
+            }
+
+            if ($e instanceof HttpException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage() ?: 'HTTP error.',
+                ], $e->getStatusCode());
             }
 
             return response()->json([
