@@ -36,6 +36,14 @@ class AuthService
         }
 
         $user = Auth::user();
+
+        if ($user->isBanned()) {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'banned' => ['Your account has been suspended.'],
+            ]);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return [
