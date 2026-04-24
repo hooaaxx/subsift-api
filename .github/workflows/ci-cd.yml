@@ -9,23 +9,9 @@ on:
 jobs:
   ci:
     name: Test
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-          extensions: mbstring, pdo, pdo_sqlite, sqlite3
-          coverage: none
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v4
-        with:
-          path: vendor
-          key: composer-${{ hashFiles('composer.lock') }}
-          restore-keys: composer-
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
@@ -41,22 +27,16 @@ jobs:
   deploy:
     name: Deploy
     needs: ci
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
-      - name: Deploy to VM
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          port: ${{ secrets.VM_PORT }}
-          script: |
-            set -e
-            git -C /var/www/subsift-api pull origin main
-            composer -d /var/www/subsift-api install --no-dev --optimize-autoloader
-            php /var/www/subsift-api/artisan migrate --force
-            php /var/www/subsift-api/artisan config:cache
-            php /var/www/subsift-api/artisan route:cache
-            php /var/www/subsift-api/artisan view:cache
-            sudo systemctl reload php8.3-fpm
+      - name: Deploy
+        run: |
+          set -e
+          git -C /var/www/subsift-api pull origin main
+          composer -d /var/www/subsift-api install --no-dev --optimize-autoloader
+          php /var/www/subsift-api/artisan migrate --force
+          php /var/www/subsift-api/artisan config:cache
+          php /var/www/subsift-api/artisan route:cache
+          php /var/www/subsift-api/artisan view:cache
+          sudo systemctl reload php8.3-fpm
