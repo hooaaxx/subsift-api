@@ -17,9 +17,7 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Prepare environment
-        run: |
-          cp .env.testing .env
-          php artisan key:generate
+        run: cp .env.testing .env
 
       - name: Run tests
         run: php artisan test
@@ -36,7 +34,5 @@ jobs:
           git -C /var/www/subsift-api pull origin main
           composer -d /var/www/subsift-api install --no-dev --optimize-autoloader
           php /var/www/subsift-api/artisan migrate --force
-          php /var/www/subsift-api/artisan config:cache
-          php /var/www/subsift-api/artisan route:cache
-          php /var/www/subsift-api/artisan view:cache
+          php /var/www/subsift-api/artisan optimize:clear
           sudo systemctl reload php8.3-fpm
