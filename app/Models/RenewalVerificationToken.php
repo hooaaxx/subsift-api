@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,12 +30,12 @@ class RenewalVerificationToken extends Model
         return $this->belongsTo(Subscription::class);
     }
 
-    public function scopeUnused($query)
+    public function scopeUnused(Builder $query): Builder
     {
         return $query->whereNull('used_at');
     }
 
-    public function scopeNotExpired($query)
+    public function scopeNotExpired(Builder $query): Builder
     {
         return $query->where('expires_at', '>', now());
     }
