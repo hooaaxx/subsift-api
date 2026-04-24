@@ -23,6 +23,7 @@ class Subscription extends Model
         'is_trial',
         'trial_ends_at',
         'alert_enabled',
+        'status',
         'notes',
     ];
 
@@ -42,5 +43,15 @@ class Subscription extends Model
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);
+    }
+
+    public function renewalVerificationTokens(): HasMany
+    {
+        return $this->hasMany(RenewalVerificationToken::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
     }
 }
