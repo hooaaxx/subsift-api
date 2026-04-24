@@ -28,6 +28,7 @@ class SubscriptionFactory extends Factory
             'is_trial'          => false,
             'trial_ends_at'     => null,
             'alert_enabled'     => true,
+            'status'            => 'active',
             'notes'             => null,
         ];
     }
