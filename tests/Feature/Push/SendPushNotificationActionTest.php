@@ -34,6 +34,6 @@ class SendPushNotificationActionTest extends TestCase
         $action = new SendPushNotificationAction();
         $action->execute($user, 'Test Title', 'Test message');
 
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 }

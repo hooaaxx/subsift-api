@@ -28,13 +28,16 @@ class SendPushNotificationAction
             ],
         ]);
 
-        $payload = json_encode(['title' => $title, 'message' => $message, 'url' => $url]);
+        $payload = json_encode(['title' => $title, 'message' => $message, 'url' => $url], JSON_THROW_ON_ERROR);
+
+        // Build id map before queuing so expired cleanup uses PK, not an unscoped endpoint query
+        $endpointToId = $subscriptions->pluck('id', 'endpoint')->all();
 
         foreach ($subscriptions as $sub) {
             $webPush->queueNotification(
                 Subscription::create([
                     'endpoint'        => $sub->endpoint,
-                    'contentEncoding' => 'aesgcm',
+                    'contentEncoding' => 'aesgcm', // legacy encoding; aes128gcm (RFC 8291) is preferred by modern browsers but minishlink/web-push v10 still defaults to this
                     'publicKey'       => $sub->public_key,
                     'authToken'       => $sub->auth_token,
                 ]),
@@ -43,8 +46,12 @@ class SendPushNotificationAction
         }
 
         foreach ($webPush->flush() as $report) {
-            if ($report->isSubscriptionExpired()) {
-                PushSubscription::where('endpoint', $report->getRequest()->getUri()->__toString())->delete();
+            // Only 410 Gone is the definitive "unsubscribed" signal per RFC 8030; 404 may be transient
+            if ($report->getResponse()?->getStatusCode() === 410) {
+                $id = $endpointToId[$report->getEndpoint()] ?? null;
+                if ($id) {
+                    PushSubscription::destroy($id);
+                }
             }
         }
     }
