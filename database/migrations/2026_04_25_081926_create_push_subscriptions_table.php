@@ -15,8 +15,6 @@ return new class extends Migration
             $table->string('public_key', 255);
             $table->string('auth_token', 255);
             $table->timestamps();
-
-            $table->index('user_id');
         });
     }
 
