@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Actions\SendPushNotificationAction;
 use App\Actions\SendRenewalVerificationAction;
 use App\Models\Subscription;
 use App\Repositories\Contracts\NotificationRepositoryInterface;
@@ -19,13 +20,13 @@ class SendRenewalVerificationJob implements ShouldQueue
 
     public function __construct(private readonly Subscription $subscription) {}
 
-    public function handle(NotificationRepositoryInterface $notifications): void
+    public function handle(NotificationRepositoryInterface $notifications, SendPushNotificationAction $push): void
     {
         Log::info('─────────────────────────────────────────');
         Log::info("SendRenewalVerificationJob: processing subscription #{$this->subscription->id} ({$this->subscription->name})");
 
-        DB::transaction(function () use ($notifications) {
-            $action = new SendRenewalVerificationAction($notifications);
+        DB::transaction(function () use ($notifications, $push) {
+            $action = new SendRenewalVerificationAction($notifications, $push);
             $action->execute($this->subscription);
         });
 

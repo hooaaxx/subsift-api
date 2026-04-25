@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Mail;
 class SendRenewalAlertAction
 {
     public function __construct(
-        private readonly NotificationRepositoryInterface $notifications
+        private readonly NotificationRepositoryInterface $notifications,
+        private readonly SendPushNotificationAction $push,
     ) {}
 
     public function execute(Subscription $subscription): void
@@ -51,6 +52,12 @@ class SendRenewalAlertAction
 
         $this->notifications->create($inAppData->toArray());
         $this->notifications->create($emailData->toArray());
+
         Mail::send(new RenewalAlertMail($subscription));
+
+        $user = $subscription->user;
+        if ($user) {
+            $this->push->execute($user, $title, $message);
+        }
     }
 }
