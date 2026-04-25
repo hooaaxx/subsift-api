@@ -34,10 +34,13 @@ class SendRenewalVerificationAction
             subscriptionId: $subscription->id,
         ))->toArray());
 
-        (new SendPushNotificationAction())->execute(
-            $subscription->user,
-            "Did {$subscription->name} renew?",
-            "Confirm what happened with your {$subscription->name} subscription renewal."
-        );
+        $user = $subscription->user;
+        if ($user) {
+            (new SendPushNotificationAction())->execute(
+                $user,
+                "Did {$subscription->name} renew?",
+                "Confirm what happened with your {$subscription->name} subscription renewal."
+            );
+        }
     }
 }
