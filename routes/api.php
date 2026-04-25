@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AdminController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\PushSubscriptionController;
 use App\Http\Controllers\Api\V1\RenewalVerificationController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
 use Illuminate\Support\Facades\Cache;
@@ -49,6 +50,10 @@ Route::prefix('v1')->group(function () {
         Route::patch('notifications/read-all',    [NotificationController::class, 'markAllRead']);
         Route::get('notifications',               [NotificationController::class, 'index']);
         Route::patch('notifications/{id}/read',   [NotificationController::class, 'markAsRead']);
+
+        // Push subscriptions
+        Route::post('push/subscribe',     [PushSubscriptionController::class, 'store']);
+        Route::delete('push/unsubscribe', [PushSubscriptionController::class, 'destroy']);
     });
 
     // Admin
