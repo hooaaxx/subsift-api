@@ -23,7 +23,7 @@ class PushSubscriptionControllerTest extends TestCase
         Sanctum::actingAs(User::factory()->create());
 
         $this->postJson('/api/v1/push/subscribe', $this->payload)
-             ->assertStatus(200)
+             ->assertStatus(201)
              ->assertJson(['success' => true]);
 
         $this->assertDatabaseHas('push_subscriptions', [
@@ -36,7 +36,7 @@ class PushSubscriptionControllerTest extends TestCase
         $user = User::factory()->create();
         Sanctum::actingAs($user);
 
-        $this->postJson('/api/v1/push/subscribe', $this->payload)->assertStatus(200);
+        $this->postJson('/api/v1/push/subscribe', $this->payload)->assertStatus(201);
         $this->postJson('/api/v1/push/subscribe', $this->payload)->assertStatus(200);
 
         $this->assertDatabaseCount('push_subscriptions', 1);

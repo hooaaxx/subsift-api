@@ -12,7 +12,7 @@ class PushSubscriptionController extends Controller
 {
     public function store(StorePushSubscriptionRequest $request): JsonResponse
     {
-        PushSubscription::updateOrCreate(
+        $subscription = PushSubscription::updateOrCreate(
             [
                 'user_id'  => $request->user()->id,
                 'endpoint' => $request->endpoint,
@@ -23,7 +23,13 @@ class PushSubscriptionController extends Controller
             ]
         );
 
-        return response()->json(['success' => true]);
+        $status = $subscription->wasRecentlyCreated ? 201 : 200;
+
+        return response()->json([
+            'success' => true,
+            'data'    => null,
+            'message' => 'Push subscription saved.',
+        ], $status);
     }
 
     public function destroy(Request $request): JsonResponse
@@ -34,6 +40,10 @@ class PushSubscriptionController extends Controller
             ->where('endpoint', $request->endpoint)
             ->delete();
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'data'    => null,
+            'message' => 'Push subscription removed.',
+        ]);
     }
 }
