@@ -12,7 +12,13 @@ class GenerateVapidKeys extends Command
 
     public function handle(): int
     {
-        $keys = VAPID::createVapidKeys();
+        try {
+            $keys = VAPID::createVapidKeys();
+        } catch (\Throwable $e) {
+            $this->error('Failed to generate VAPID keys: ' . $e->getMessage());
+            $this->line('Ensure your PHP OpenSSL extension is correctly configured (OPENSSL_CONF may need to be set).');
+            return self::FAILURE;
+        }
 
         $this->info('Add these to your .env file:');
         $this->line('');
