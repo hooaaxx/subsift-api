@@ -37,7 +37,7 @@ class SendPushNotificationAction
             $webPush->queueNotification(
                 Subscription::create([
                     'endpoint'        => $sub->endpoint,
-                    'contentEncoding' => 'aesgcm', // legacy encoding; aes128gcm (RFC 8291) is preferred by modern browsers but minishlink/web-push v10 still defaults to this
+                    'contentEncoding' => 'aes128gcm',
                     'publicKey'       => $sub->public_key,
                     'authToken'       => $sub->auth_token,
                 ]),
