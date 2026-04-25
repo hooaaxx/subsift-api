@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Notification;
 
+use App\Actions\SendPushNotificationAction;
 use App\Jobs\SendRenewalAlertJob;
 use App\Mail\RenewalAlertMail;
 use App\Models\Subscription;
@@ -27,7 +28,8 @@ class RenewalAlertJobTest extends TestCase
         ]);
 
         (new SendRenewalAlertJob($subscription))->handle(
-            app(\App\Repositories\Contracts\NotificationRepositoryInterface::class)
+            app(\App\Repositories\Contracts\NotificationRepositoryInterface::class),
+            new SendPushNotificationAction()
         );
 
         $this->assertDatabaseHas('notifications', [

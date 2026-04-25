@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Mail;
 class SendRenewalVerificationAction
 {
     public function __construct(
-        private readonly NotificationRepositoryInterface $notifications
+        private readonly NotificationRepositoryInterface $notifications,
+        private readonly SendPushNotificationAction $push,
     ) {}
 
     public function execute(Subscription $subscription): void
@@ -36,7 +37,7 @@ class SendRenewalVerificationAction
 
         $user = $subscription->user;
         if ($user) {
-            (new SendPushNotificationAction())->execute(
+            $this->push->execute(
                 $user,
                 "Did {$subscription->name} renew?",
                 "Confirm what happened with your {$subscription->name} subscription renewal."

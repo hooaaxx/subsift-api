@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Notification;
 
+use App\Actions\SendPushNotificationAction;
 use App\Jobs\SendRenewalVerificationJob;
 use App\Mail\RenewalVerificationMail;
 use App\Models\Subscription;
@@ -27,7 +28,8 @@ class RenewalVerificationJobTest extends TestCase
         ]);
 
         (new SendRenewalVerificationJob($sub))->handle(
-            app(NotificationRepositoryInterface::class)
+            app(NotificationRepositoryInterface::class),
+            new SendPushNotificationAction()
         );
 
         $this->assertDatabaseCount('renewal_verification_tokens', 3);
@@ -53,7 +55,8 @@ class RenewalVerificationJobTest extends TestCase
         $sub  = Subscription::factory()->create(['user_id' => $user->id]);
 
         (new SendRenewalVerificationJob($sub))->handle(
-            app(NotificationRepositoryInterface::class)
+            app(NotificationRepositoryInterface::class),
+            new SendPushNotificationAction()
         );
 
         $token = $sub->renewalVerificationTokens()->first();

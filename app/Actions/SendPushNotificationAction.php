@@ -46,7 +46,9 @@ class SendPushNotificationAction
         }
 
         foreach ($webPush->flush() as $report) {
-            // Only 410 Gone is the definitive "unsubscribed" signal per RFC 8030; 404 may be transient
+            // Only 410 Gone is the definitive "unsubscribed" signal per RFC 8030; 404 may be transient.
+            // The library's isSubscriptionExpired() matches both 404 and 410 — we check status directly
+            // to avoid deleting subscriptions on transient errors.
             if ($report->getResponse()?->getStatusCode() === 410) {
                 $id = $endpointToId[$report->getEndpoint()] ?? null;
                 if ($id) {
