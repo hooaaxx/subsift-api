@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('subsift:check-renewals')->dailyAt('08:00');
+Schedule::command('subsift:check-renewal-verifications')->dailyAt('09:00');
