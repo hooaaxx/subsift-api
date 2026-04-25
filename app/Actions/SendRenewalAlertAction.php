@@ -31,26 +31,26 @@ class SendRenewalAlertAction
 
         $type = $isTrial ? 'trial_expiry' : 'renewal_alert';
 
-        $inAppData = new NotificationData(
+        $this->notifications->create((new NotificationData(
             userId:         $subscription->user_id,
             type:           $type,
             title:          $title,
             message:        $message,
             channel:        'in_app',
             subscriptionId: $subscription->id,
-        );
+        ))->toArray());
 
-        $emailData = new NotificationData(
+        $this->notifications->create((new NotificationData(
             userId:         $subscription->user_id,
             type:           $type,
             title:          $title,
             message:        $message,
             channel:        'email',
             subscriptionId: $subscription->id,
-        );
+        ))->toArray());
 
-        $this->notifications->create($inAppData->toArray());
-        $this->notifications->create($emailData->toArray());
         Mail::send(new RenewalAlertMail($subscription));
+
+        (new SendPushNotificationAction())->execute($subscription->user, $title, $message);
     }
 }

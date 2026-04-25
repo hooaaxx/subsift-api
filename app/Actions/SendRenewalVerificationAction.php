@@ -33,5 +33,11 @@ class SendRenewalVerificationAction
             channel:        'in_app',
             subscriptionId: $subscription->id,
         ))->toArray());
+
+        (new SendPushNotificationAction())->execute(
+            $subscription->user,
+            "Did {$subscription->name} renew?",
+            "Confirm what happened with your {$subscription->name} subscription renewal."
+        );
     }
 }
