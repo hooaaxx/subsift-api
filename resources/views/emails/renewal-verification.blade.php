@@ -7,11 +7,15 @@
 <body style="font-family: sans-serif; background: #f4f4f8; padding: 32px; margin: 0;">
     <div style="max-width: 520px; margin: 0 auto; background: white; border-radius: 12px; padding: 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
         <h2 style="color: #6366f1; margin-top: 0;">SubSift</h2>
+        @php
+            $fmt           = new NumberFormatter('en', NumberFormatter::CURRENCY);
+            $formattedCost = $fmt->formatCurrency($subscription->cost, $subscription->currency);
+        @endphp
         <p>Hi {{ $subscription->user->name }},</p>
         <p>
             Your <strong>{{ $subscription->name }}</strong> subscription was scheduled to renew
             on <strong>{{ $subscription->next_billing_date->format('M d, Y') }}</strong>
-            for <strong>${{ number_format($subscription->cost, 2) }}</strong>/{{ $subscription->billing_cycle }}.
+            for <strong>{{ $formattedCost }}</strong>/{{ $subscription->billing_cycle }}.
         </p>
         <p style="font-weight: 600;">What happened?</p>
 

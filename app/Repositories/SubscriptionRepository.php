@@ -39,6 +39,7 @@ class SubscriptionRepository implements SubscriptionRepositoryInterface
     public function upcomingForUser(User $user): Collection
     {
         return $user->subscriptions()
+            ->where('status', 'active')
             ->whereBetween('next_billing_date', [now()->startOfMonth(), now()->endOfMonth()])
             ->orderBy('next_billing_date')
             ->get();

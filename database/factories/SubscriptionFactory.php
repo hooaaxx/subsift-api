@@ -22,6 +22,7 @@ class SubscriptionFactory extends Factory
             'initials'          => $initials,
             'color'             => $this->faker->randomElement($colors),
             'cost'              => $this->faker->randomFloat(2, 1, 100),
+            'currency'          => 'USD',
             'billing_cycle'     => $this->faker->randomElement(['monthly', 'yearly']),
             'payment_method'    => $this->faker->randomElement(['credit_card', 'app_store', 'carrier_billing']),
             'next_billing_date' => $this->faker->dateTimeBetween('now', '+3 months')->format('Y-m-d'),

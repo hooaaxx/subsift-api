@@ -23,6 +23,7 @@ final class SubscriptionData
         public readonly ?string $trialEndsAt = null,
         public readonly bool    $alertEnabled = true,
         public readonly ?string $notes = null,
+        public readonly string  $currency = 'USD',
     ) {
         $words = explode(' ', trim($name));
         $this->initials = count($words) >= 2
@@ -40,6 +41,7 @@ final class SubscriptionData
             'initials'          => $this->initials,
             'color'             => $this->color,
             'cost'              => $this->cost,
+            'currency'          => $this->currency,
             'billing_cycle'     => $this->billingCycle,
             'payment_method'    => $this->paymentMethod,
             'next_billing_date' => $this->nextBillingDate,
@@ -63,6 +65,7 @@ final class SubscriptionData
             trialEndsAt:     $data['trial_ends_at'] ?? null,
             alertEnabled:    (bool) ($data['alert_enabled'] ?? true),
             notes:           $data['notes'] ?? null,
+            currency:        $data['currency'] ?? 'USD',
         );
     }
 }

@@ -125,4 +125,36 @@ class RenewalVerificationControllerTest extends TestCase
         $this->postJson("/api/v1/renewal/price/{$token->token}", ['new_cost' => 12.99])
              ->assertStatus(422);
     }
+
+    public function test_verify_renewed_invalidates_sibling_tokens(): void
+    {
+        $user = User::factory()->create();
+        $sub  = Subscription::factory()->create(['user_id' => $user->id]);
+
+        $renewed      = RenewalVerificationToken::factory()->create(['subscription_id' => $sub->id, 'action' => 'renewed',       'expires_at' => now()->addDays(7)]);
+        $cancelled    = RenewalVerificationToken::factory()->create(['subscription_id' => $sub->id, 'action' => 'cancelled',     'expires_at' => now()->addDays(7)]);
+        $priceChanged = RenewalVerificationToken::factory()->create(['subscription_id' => $sub->id, 'action' => 'price_changed', 'expires_at' => now()->addDays(7)]);
+
+        $this->get("/api/v1/renewal/verify/{$renewed->token}")->assertRedirect();
+
+        $this->assertNotNull($renewed->fresh()->used_at);
+        $this->assertNotNull($cancelled->fresh()->used_at);
+        $this->assertNotNull($priceChanged->fresh()->used_at);
+    }
+
+    public function test_update_price_invalidates_sibling_tokens(): void
+    {
+        $user = User::factory()->create();
+        $sub  = Subscription::factory()->create(['user_id' => $user->id, 'billing_cycle' => 'monthly', 'next_billing_date' => Carbon::yesterday()->toDateString()]);
+
+        $renewed      = RenewalVerificationToken::factory()->create(['subscription_id' => $sub->id, 'action' => 'renewed',       'expires_at' => now()->addDays(7)]);
+        $cancelled    = RenewalVerificationToken::factory()->create(['subscription_id' => $sub->id, 'action' => 'cancelled',     'expires_at' => now()->addDays(7)]);
+        $priceChanged = RenewalVerificationToken::factory()->create(['subscription_id' => $sub->id, 'action' => 'price_changed', 'expires_at' => now()->addDays(7)]);
+
+        $this->postJson("/api/v1/renewal/price/{$priceChanged->token}", ['new_cost' => 15.00])->assertStatus(200);
+
+        $this->assertNotNull($priceChanged->fresh()->used_at);
+        $this->assertNotNull($renewed->fresh()->used_at);
+        $this->assertNotNull($cancelled->fresh()->used_at);
+    }
 }

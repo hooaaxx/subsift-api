@@ -47,6 +47,7 @@ class RenewalVerificationController extends Controller
         }
 
         $record->update(['used_at' => now()]);
+        $this->invalidateSiblings($record);
 
         $name = urlencode($subscription->name);
         return redirect("{$this->frontendUrl}/renewal/confirmed?name={$name}&action={$record->action}");
@@ -73,8 +74,17 @@ class RenewalVerificationController extends Controller
             'next_billing_date' => $this->advanceBillingDate($subscription),
         ]);
         $record->update(['used_at' => now()]);
+        $this->invalidateSiblings($record);
 
         return response()->json(['success' => true, 'name' => $subscription->name]);
+    }
+
+    private function invalidateSiblings(RenewalVerificationToken $used): void
+    {
+        RenewalVerificationToken::where('subscription_id', $used->subscription_id)
+            ->where('id', '!=', $used->id)
+            ->whereNull('used_at')
+            ->update(['used_at' => now()]);
     }
 
     private function advanceBillingDate($subscription): string

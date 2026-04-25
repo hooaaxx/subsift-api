@@ -13,6 +13,7 @@ class UpdateSubscriptionRequest extends FormRequest
         return [
             'name'              => ['required', 'string', 'max:255'],
             'cost'              => ['required', 'numeric', 'min:0'],
+            'currency'          => ['sometimes', 'string', 'size:3'],
             'billing_cycle'     => ['required', 'in:monthly,yearly'],
             'payment_method'    => ['required', 'in:credit_card,app_store,carrier_billing'],
             'next_billing_date' => ['required', 'date'],

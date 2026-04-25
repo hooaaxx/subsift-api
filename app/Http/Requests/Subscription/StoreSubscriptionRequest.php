@@ -13,9 +13,10 @@ class StoreSubscriptionRequest extends FormRequest
         return [
             'name'              => ['required', 'string', 'max:255'],
             'cost'              => ['required', 'numeric', 'min:0'],
+            'currency'          => ['sometimes', 'string', 'size:3'],
             'billing_cycle'     => ['required', 'in:monthly,yearly'],
             'payment_method'    => ['required', 'in:credit_card,app_store,carrier_billing'],
-            'next_billing_date' => ['required', 'date', 'after_or_equal:today'],
+            'next_billing_date' => ['required', 'date'],
             'is_trial'          => ['sometimes', 'boolean'],
             'trial_ends_at'     => ['nullable', 'date', 'after:today', 'required_if:is_trial,true'],
             'alert_enabled'     => ['sometimes', 'boolean'],

@@ -18,6 +18,7 @@ class Subscription extends Model
         'initials',
         'color',
         'cost',
+        'currency',
         'billing_cycle',
         'payment_method',
         'next_billing_date',
