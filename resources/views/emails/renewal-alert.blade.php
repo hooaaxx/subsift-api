@@ -19,7 +19,18 @@
         </p>
         <div style="background: #f8f7ff; border-radius: 8px; padding: 16px; margin: 16px 0;">
             <p style="margin: 0; color: #374151;">
-                Cost: <strong>${{ number_format($subscription->cost, 2) }}</strong>
+                @php
+                    $symbols = [
+                        'USD'=>'$','CAD'=>'$','AUD'=>'$','SGD'=>'$','HKD'=>'$','NZD'=>'$','MXN'=>'$','TWD'=>'$',
+                        'EUR'=>'€','GBP'=>'£','JPY'=>'¥','CNY'=>'¥',
+                        'PHP'=>'₱','INR'=>'₹','KRW'=>'₩','THB'=>'฿',
+                        'CHF'=>'Fr ','SEK'=>'kr ','NOK'=>'kr ','DKK'=>'kr ',
+                        'MYR'=>'RM ','IDR'=>'Rp ','BRL'=>'R$','ZAR'=>'R ','AED'=>'AED ',
+                    ];
+                    $sym = $symbols[$subscription->currency] ?? $subscription->currency.' ';
+                    $cost = $sym . number_format($subscription->cost, 2);
+                @endphp
+                Cost: <strong>{{ $cost }}</strong>
                 &mdash; {{ ucfirst($subscription->billing_cycle) }}
             </p>
         </div>
