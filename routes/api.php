@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AdminController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\RenewalVerificationController;
 use App\Http\Controllers\Api\V1\SubscriptionController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('v1')->group(function () {
 
     // Public
+    Route::get('renewal/verify/{token}', [RenewalVerificationController::class, 'verify']);
+    Route::post('renewal/price/{token}', [RenewalVerificationController::class, 'updatePrice']);
+
     Route::get('status', function () {
         return response()->json([
             'success' => true,

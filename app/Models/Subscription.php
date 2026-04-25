@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,12 +18,14 @@ class Subscription extends Model
         'initials',
         'color',
         'cost',
+        'currency',
         'billing_cycle',
         'payment_method',
         'next_billing_date',
         'is_trial',
         'trial_ends_at',
         'alert_enabled',
+        'status',
         'notes',
     ];
 
@@ -42,5 +45,15 @@ class Subscription extends Model
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);
+    }
+
+    public function renewalVerificationTokens(): HasMany
+    {
+        return $this->hasMany(RenewalVerificationToken::class);
+    }
+
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('status', 'active');
     }
 }

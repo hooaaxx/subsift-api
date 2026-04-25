@@ -49,13 +49,21 @@ class SubscriptionService
     {
         $subscriptions = $this->subscriptions->allForUser($user);
 
-        $monthlyTotal = $subscriptions->where('billing_cycle', 'monthly')->sum('cost');
-        $annualTotal  = $subscriptions->where('billing_cycle', 'yearly')->sum('cost')
+        $active    = $subscriptions->where('status', 'active');
+        $cancelled = $subscriptions->where('status', 'cancelled');
+
+        $monthlyTotal = $active->where('billing_cycle', 'monthly')->sum('cost');
+        $annualTotal  = $active->where('billing_cycle', 'yearly')->sum('cost')
                       + ($monthlyTotal * 12);
 
+        $cancelledMonthlySavings = $cancelled->where('billing_cycle', 'monthly')->sum('cost')
+                                 + ($cancelled->where('billing_cycle', 'yearly')->sum('cost') / 12);
+
         return [
-            'monthly_total' => (float) round($monthlyTotal, 2),
-            'annual_total'  => (float) round($annualTotal, 2),
+            'monthly_total'             => (float) round($monthlyTotal, 2),
+            'annual_total'              => (float) round($annualTotal, 2),
+            'cancelled_monthly_savings' => (float) round($cancelledMonthlySavings, 2),
+            'cancelled_count'           => $cancelled->count(),
         ];
     }
 

@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Repositories\Contracts\SubscriptionRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 class SubscriptionRepository implements SubscriptionRepositoryInterface
@@ -38,8 +39,21 @@ class SubscriptionRepository implements SubscriptionRepositoryInterface
     public function upcomingForUser(User $user): Collection
     {
         return $user->subscriptions()
+            ->where('status', 'active')
             ->whereBetween('next_billing_date', [now()->startOfMonth(), now()->endOfMonth()])
             ->orderBy('next_billing_date')
+            ->get();
+    }
+
+    public function dueForVerification(): Collection
+    {
+        return Subscription::active()
+            ->whereDate('next_billing_date', Carbon::yesterday())
+            ->where('is_trial', false)
+            ->whereDoesntHave('renewalVerificationTokens', function ($q) {
+                $q->whereNull('used_at')->where('expires_at', '>', now());
+            })
+            ->with('user')
             ->get();
     }
 

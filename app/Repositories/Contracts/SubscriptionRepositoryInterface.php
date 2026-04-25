@@ -21,4 +21,6 @@ interface SubscriptionRepositoryInterface
     public function upcomingForUser(User $user): Collection;
 
     public function dueForAlert(): Collection;
+
+    public function dueForVerification(): Collection;
 }
